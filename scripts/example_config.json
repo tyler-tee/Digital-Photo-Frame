@@ -1,0 +1,8 @@
+{
+    "album_id": "your_album_id",
+    "api_service_name": "photoslibrary",
+    "api_version": "v1",
+    "client_secrets_file": "client_secret.json",
+    "local_folder": "/path/to/your/local/folder",
+    "scopes": ["https://www.googleapis.com/auth/photoslibrary.readonly"]
+}
