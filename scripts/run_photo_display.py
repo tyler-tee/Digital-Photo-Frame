@@ -52,7 +52,21 @@ class PhotoFrameApp(App):
 
         Clock.schedule_interval(self.update_image, 15)
 
+        # Schedule the check for new images every hour (3600 seconds)
+        Clock.schedule_interval(self.check_for_new_images, 3600)
+
         return layout
+
+    def check_for_new_images(self, dt):
+        """
+        Check for new images in the photos directory and reload the images if new images are found.
+        """
+        new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
+        if new_images != self.images:
+            self.images = new_images
+            # Optionally, reset to the first image or continue from the current index
+            self.index = 0
+            self.load_next_image(force=True)
 
     def update_image(self, dt=None):
         """
