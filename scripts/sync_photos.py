@@ -1,12 +1,12 @@
 import json
 import os
 import pickle
-import google_auth_oauthlib.flow
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import googleapiclient.discovery
 import googleapiclient.errors
 import requests
+
 
 def load_config():
     # Get the path to our config file
@@ -18,6 +18,7 @@ def load_config():
     client_secrets = os.path.join(os.path.dirname(__file__), 'client_secret.json')
 
     return config, client_secrets
+
 
 # Load configuration
 config, client_secrets = load_config()
@@ -56,6 +57,7 @@ def auth_client():
 
     return service
 
+
 def list_photos(service, album_id: str) -> dict:
     """
        Summary: List photos in our Google Photos album
@@ -70,6 +72,7 @@ def list_photos(service, album_id: str) -> dict:
     results = service.mediaItems().search(body={"albumId": album_id}).execute()
     items = results.get('mediaItems', [])
     return {item['filename']: item['baseUrl'] for item in items}
+
 
 def sync_photos(local_folder: str, album_id: str):
     """
@@ -98,6 +101,7 @@ def sync_photos(local_folder: str, album_id: str):
     for filename in os.listdir(photos_path):
         if filename not in photos:
             os.remove(os.path.join(photos_path, filename))
+
 
 if __name__ == '__main__':
     sync_photos(config['local_folder'], config['album_id'])
