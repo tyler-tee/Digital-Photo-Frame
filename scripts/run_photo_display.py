@@ -1,4 +1,7 @@
 from datetime import datetime
+import json
+import os
+import requests
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.image import Image
@@ -6,7 +9,16 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.animation import Animation
-import os
+
+
+def load_config():
+    # Get the path to our config file
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+
+    with open(config_path) as config_file:
+        config = json.load(config_file)
+
+    return config
 
 
 class SwipeImage(Image):
@@ -54,12 +66,22 @@ class PhotoFrameApp(App):
 
         layout.add_widget(self.image_widget)
 
+        self.weather_label = Label(
+            text=self.fetch_weather_data(),
+            font_size='15sp',
+            color=[1, 1, 1, 1],  # White color
+            size_hint=(None, None),
+            pos_hint={'x': 0.06, 'y': 0.08},  # Adjust 'top' value as needed
+            halign='left'
+        )
+        layout.add_widget(self.weather_label)
+
         self.clock_label = Label(
             text=self.get_current_time(),
             font_size='60sp',
             color=[1, 1, 1, 1],  # White color
             size_hint=(None, None),
-            pos_hint={'x': 0.05, 'y': 0.01},
+            pos_hint={'x': 0.06, 'y': 0.01},
             halign='left'
         )
 
@@ -70,6 +92,7 @@ class PhotoFrameApp(App):
 
         # Schedule the check for new images every hour (3600 seconds)
         Clock.schedule_interval(self.check_for_new_images, 3600)
+        Clock.schedule_interval(self.update_weather, 3600)  # Update every hour
 
         # Create a transparent refresh button
         button_path = os.path.join(os.path.dirname(__file__), 'assets')
@@ -79,7 +102,7 @@ class PhotoFrameApp(App):
             size_hint=(None, None),
             size=(50, 50),  # Adjust size as needed
             opacity=0.7,  # Adjust for desired transparency
-            pos_hint={'right': 0.98, 'y': 0.02}
+            pos_hint={'right': 0.98, 'y': 0.03}
         )
         self.refresh_button.bind(on_press=self.check_for_new_images)
 
@@ -88,11 +111,49 @@ class PhotoFrameApp(App):
 
         return layout
 
+    def fetch_weather_data(self):
+        config = load_config()
+        api_key, location = config['weather_api_key'], config['weather_location']
+
+        url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
+
+        try:
+            response = requests.get(url)
+            data = response.json()
+            temperature = round(data['main']['temp'])
+            weather = data['weather'][0]['description'].title()
+            return f"{temperature}°F | {weather}"
+        except Exception as e:
+            print("Error fetching weather data:", e)
+            return "N/A"
+
+    def fetch_weather_data_old(self):
+        config = load_config()
+        location = config['weather_location']
+
+        coords_call = f'https://geocoding-api.open-meteo.com/v1/search?name={location}&count=10&language=en&format=json'
+
+        coords = requests.get(coords_call).json()['results'][0]
+        url = f'https://api.open-meteo.com/v1/forecast?latitude={coords["latitude"]}&longitude={coords["longitude"]}'
+
+        try:
+            response = requests.get(url)
+            data = response.json()
+            print(data)
+            temperature = data['main']['temp']
+            return f"{temperature}°F"
+        except Exception as e:
+            print("Error fetching weather data:", e)
+            return "N/A"
+
     def get_current_time(self):
         return datetime.now().strftime('%H:%M')
 
     def update_clock(self, dt):
         self.clock_label.text = self.get_current_time()
+
+    def update_weather(self, dt):
+        self.weather_label.text = self.fetch_weather_data()
 
     def check_for_new_images(self, dt):
         """
