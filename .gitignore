@@ -2,3 +2,4 @@ config.json
 token.pickle
 client_secret.json
 *.jpg
+config_jenny.json
