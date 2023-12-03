@@ -65,7 +65,12 @@ class PhotoFrameApp(App):
         layout = FloatLayout()
 
         layout.add_widget(self.image_widget)
+        Clock.schedule_interval(self.update_image, 15)  # Cycle images every 15 seconds
 
+        # Schedule the check for new images every hour (3600 seconds)
+        Clock.schedule_interval(self.check_for_new_images, 3600)
+
+        # Build our weather widget
         self.weather_label = Label(
             text=self.fetch_weather_data(),
             font_size='15sp',
@@ -75,7 +80,9 @@ class PhotoFrameApp(App):
             halign='left'
         )
         layout.add_widget(self.weather_label)
+        Clock.schedule_interval(self.update_weather, 3600)  # Update weather every hour
 
+        # Build our clock widget
         self.clock_label = Label(
             text=self.get_current_time(),
             font_size='60sp',
@@ -84,17 +91,10 @@ class PhotoFrameApp(App):
             pos_hint={'x': 0.06, 'y': 0.01},
             halign='left'
         )
-
         layout.add_widget(self.clock_label)
-        Clock.schedule_interval(self.update_clock, 60)  # Update every second
+        Clock.schedule_interval(self.update_clock, 60)  # Update clock every minute
 
-        Clock.schedule_interval(self.update_image, 15)
-
-        # Schedule the check for new images every hour (3600 seconds)
-        Clock.schedule_interval(self.check_for_new_images, 3600)
-        Clock.schedule_interval(self.update_weather, 3600)  # Update every hour
-
-        # Create a transparent refresh button
+        # Build our refresh widget
         button_path = os.path.join(os.path.dirname(__file__), 'assets')
         refresh_button = os.path.join(button_path, 'refresh_icon.png')
         self.refresh_button = Button(
@@ -105,13 +105,17 @@ class PhotoFrameApp(App):
             pos_hint={'right': 0.98, 'y': 0.03}
         )
         self.refresh_button.bind(on_press=self.check_for_new_images)
-
-        # Add the refresh button to the layout
         layout.add_widget(self.refresh_button)
 
         return layout
 
-    def fetch_weather_data(self):
+    def fetch_weather_data(self) -> str:
+        """
+        Fetch weather data from the OpenWeatherMap API.
+
+        Returns:
+            str: Weather data formatted as "temperature | weather".
+        """
         config = load_config()
         api_key, location = config['weather_api_key'], config['weather_location']
 
