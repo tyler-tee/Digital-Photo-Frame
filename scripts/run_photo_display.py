@@ -127,25 +127,6 @@ class PhotoFrameApp(App):
             print("Error fetching weather data:", e)
             return "N/A"
 
-    def fetch_weather_data_old(self):
-        config = load_config()
-        location = config['weather_location']
-
-        coords_call = f'https://geocoding-api.open-meteo.com/v1/search?name={location}&count=10&language=en&format=json'
-
-        coords = requests.get(coords_call).json()['results'][0]
-        url = f'https://api.open-meteo.com/v1/forecast?latitude={coords["latitude"]}&longitude={coords["longitude"]}'
-
-        try:
-            response = requests.get(url)
-            data = response.json()
-            print(data)
-            temperature = data['main']['temp']
-            return f"{temperature}°F"
-        except Exception as e:
-            print("Error fetching weather data:", e)
-            return "N/A"
-
     def get_current_time(self):
         return datetime.now().strftime('%H:%M')
 
