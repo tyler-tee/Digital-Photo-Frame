@@ -3,6 +3,7 @@ import json
 import os
 import requests
 from kivy.app import App
+from kivy.config import Config
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
@@ -51,6 +52,9 @@ class PhotoFrameApp(App):
         Returns:
             Root widget of the Kivy app.
         """
+
+        Config.set('graphics', 'fullscreen', 'auto')
+        Config.set('graphics', 'borderless', True)
 
         self.index = 0
         photos_path = os.path.join(os.path.dirname(__file__), '../photos')
