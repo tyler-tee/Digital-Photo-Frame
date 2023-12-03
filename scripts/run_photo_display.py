@@ -1,6 +1,7 @@
 from kivy.app import App
+from kivy.uix.button import Button
 from kivy.uix.image import Image
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.animation import Animation
 import os
@@ -47,13 +48,29 @@ class PhotoFrameApp(App):
         self.image_widget = SwipeImage(source=self.images[self.index], allow_stretch=True,
                                        keep_ratio=True, opacity=1)
 
-        layout = BoxLayout()
+        layout = FloatLayout()
+
         layout.add_widget(self.image_widget)
 
         Clock.schedule_interval(self.update_image, 15)
 
         # Schedule the check for new images every hour (3600 seconds)
         Clock.schedule_interval(self.check_for_new_images, 3600)
+
+        # Create a transparent refresh button
+        button_path = os.path.join(os.path.dirname(__file__), 'assets')
+        refresh_button = os.path.join(button_path, 'refresh_icon.png')
+        self.refresh_button = Button(
+            background_normal=refresh_button,
+            size_hint=(None, None),
+            size=(50, 50),  # Adjust size as needed
+            opacity=0.7,  # Adjust for desired transparency
+            pos_hint={'right': 0.99, 'y': 0.01}
+        )
+        self.refresh_button.bind(on_press=self.check_for_new_images)
+
+        # Add the refresh button to the layout
+        layout.add_widget(self.refresh_button)
 
         return layout
 
