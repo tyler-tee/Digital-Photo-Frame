@@ -1,7 +1,9 @@
+from datetime import datetime
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.animation import Animation
 import os
@@ -52,6 +54,18 @@ class PhotoFrameApp(App):
 
         layout.add_widget(self.image_widget)
 
+        self.clock_label = Label(
+            text=self.get_current_time(),
+            font_size='60sp',
+            color=[1, 1, 1, 1],  # White color
+            size_hint=(None, None),
+            pos_hint={'x': 0.05, 'y': 0.01},
+            halign='left'
+        )
+
+        layout.add_widget(self.clock_label)
+        Clock.schedule_interval(self.update_clock, 60)  # Update every second
+
         Clock.schedule_interval(self.update_image, 15)
 
         # Schedule the check for new images every hour (3600 seconds)
@@ -65,7 +79,7 @@ class PhotoFrameApp(App):
             size_hint=(None, None),
             size=(50, 50),  # Adjust size as needed
             opacity=0.7,  # Adjust for desired transparency
-            pos_hint={'right': 0.99, 'y': 0.01}
+            pos_hint={'right': 0.98, 'y': 0.02}
         )
         self.refresh_button.bind(on_press=self.check_for_new_images)
 
@@ -73,6 +87,12 @@ class PhotoFrameApp(App):
         layout.add_widget(self.refresh_button)
 
         return layout
+
+    def get_current_time(self):
+        return datetime.now().strftime('%H:%M')
+
+    def update_clock(self, dt):
+        self.clock_label.text = self.get_current_time()
 
     def check_for_new_images(self, dt):
         """
