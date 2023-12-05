@@ -1,0 +1,11 @@
+[Unit]
+Description=Run photo display
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=~/Digital-Photo-Frame/scripts/run.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
