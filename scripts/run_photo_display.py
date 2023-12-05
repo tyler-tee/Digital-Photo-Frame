@@ -4,6 +4,7 @@ import os
 import requests
 from kivy.app import App
 from kivy.config import Config
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
@@ -104,14 +105,40 @@ class PhotoFrameApp(App):
         self.refresh_button = Button(
             background_normal=refresh_button,
             size_hint=(None, None),
-            size=(50, 50),  # Adjust size as needed
-            opacity=0.7,  # Adjust for desired transparency
-            pos_hint={'right': 0.98, 'y': 0.03}
+            size=(50, 50),
+            opacity=0.7
         )
         self.refresh_button.bind(on_press=self.check_for_new_images)
-        layout.add_widget(self.refresh_button)
+
+        # Create and add the new power-off button
+        power_button = Button(
+            background_normal=os.path.join(button_path, 'power_icon.png'),
+            size_hint=(None, None),
+            size=(50, 50),
+            opacity=0.7
+        )
+        power_button.bind(on_press=self.power_off)
+
+        # Create a vertical layout for buttons
+        button_layout = BoxLayout(size_hint=(None, None), size=(50, 100),
+                                  pos_hint={'right': 0.98, 'y': 0.03},
+                                  orientation='vertical', spacing=10)
+
+        # Add buttons to the layout
+        button_layout.add_widget(self.refresh_button)
+        button_layout.add_widget(power_button)
+
+        # Add the button layout to the main layout
+        layout.add_widget(button_layout)
 
         return layout
+
+    def power_off(self, instance):
+        """
+        Safely shut down the Raspberry Pi.
+        """
+        print("Shutting down...")
+        os.system('sudo shutdown now')
 
     def fetch_weather_data(self) -> str:
         """
