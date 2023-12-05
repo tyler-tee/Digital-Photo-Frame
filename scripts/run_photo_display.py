@@ -2,15 +2,17 @@ from datetime import datetime
 import json
 import os
 import requests
+import time
+from kivy.animation import Animation
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
-from kivy.clock import Clock
-from kivy.animation import Animation
 
 
 def load_config():
@@ -25,19 +27,26 @@ def load_config():
 
 class SwipeImage(Image):
 
-    def on_touch_move(self, touch):
-        """
-        Detect if the user is swiping left or right and load the next or previous image
-        accordingly.
-        """
+    def __init__(self, **kwargs):
+        super(SwipeImage, self).__init__(**kwargs)
+        self.last_swipe_time = 0
+        self.swipe_threshold = 0.2 * Window.width
 
-        if touch.dx < -40:  # Swipe Left
+    def on_touch_move(self, touch):
+        # Debounce mechanism
+        current_time = time.time()
+        if current_time - self.last_swipe_time < 1:  # 1 second debounce
+            return super(SwipeImage, self).on_touch_move(touch)
+
+        if touch.dx < -self.swipe_threshold:  # Swipe Left
             app = App.get_running_app()
             app.load_next_image(force=True)
+            self.last_swipe_time = current_time
 
-        elif touch.dx > 40:  # Swipe Right
+        elif touch.dx > self.swipe_threshold:  # Swipe Right
             app = App.get_running_app()
             app.load_previous_image()
+            self.last_swipe_time = current_time
 
         return super(SwipeImage, self).on_touch_move(touch)
 
