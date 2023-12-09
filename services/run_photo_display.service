@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=~/Digital-Photo-Frame/scripts/run.sh
+ExecStart=/home/pi/Digital-Photo-Frame/scripts/run.sh
 Restart=always
 
 [Install]
