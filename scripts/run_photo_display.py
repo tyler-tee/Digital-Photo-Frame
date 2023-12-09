@@ -15,6 +15,15 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 
 
+def kivy_config():
+    """
+    Configure Kivy to run in borderless fullscreen mode.
+    """
+    Config.set('graphics', 'fullscreen', 'auto')
+    Config.set('graphics', 'borderless', True)
+    Config.write()
+
+
 def load_config():
     # Get the path to our config file
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -62,9 +71,6 @@ class PhotoFrameApp(App):
         Returns:
             Root widget of the Kivy app.
         """
-
-        Config.set('graphics', 'fullscreen', 'auto')
-        Config.set('graphics', 'borderless', True)
 
         self.index = 0
         photos_path = os.path.join(os.path.dirname(__file__), '../photos')
@@ -233,4 +239,5 @@ class PhotoFrameApp(App):
 
 
 if __name__ == '__main__':
+    kivy_config()
     PhotoFrameApp().run()
