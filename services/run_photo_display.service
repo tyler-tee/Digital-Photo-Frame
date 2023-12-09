@@ -4,6 +4,9 @@ After=multi-user.target
 
 [Service]
 Type=simple
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/pi/.Xauthority"
+User=pi
 ExecStart=/home/pi/Digital-Photo-Frame/scripts/run.sh
 Restart=always
 
