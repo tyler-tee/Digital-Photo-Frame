@@ -23,6 +23,8 @@ def kivy_config():
     Config.set('graphics', 'borderless', True)
     Config.write()
 
+    Window.show_cursor = False
+
 
 def load_config():
     # Get the path to our config file
