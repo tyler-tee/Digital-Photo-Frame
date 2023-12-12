@@ -183,8 +183,6 @@ class PhotoFrameApp(App):
         new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
         if new_images != self.images:
             self.images = new_images
-            # Optionally, reset to the first image or continue from the current index
-            self.index = 0
             self.load_next_image(force=True)
 
     def update_image(self, dt=None):
