@@ -1,4 +1,4 @@
-run_photo_display.py chmod=a+x
-run.sh chmod=a+x
-sync_photos.py chmod=a+x
-sync_photos.sh chmod=a+x
+scripts/run_photo_display.py chmod=a+x
+scripts/run.sh chmod=a+x
+scripts/sync_photos.py chmod=a+x
+scripts/sync_photos.sh chmod=a+x
