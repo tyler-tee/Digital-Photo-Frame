@@ -126,6 +126,14 @@ class PhotoFrameApp(App):
 
         return layout
 
+    def show_toast(self, message):
+        toast = Label(text=message, size_hint=(None, None), font_size='20sp',
+                      bold=True, pos_hint={'center_x': 0.5, 'center_y': 0.1})
+        App.get_running_app().root.add_widget(toast)
+        anim = Animation(opacity=0.5, duration=5)
+        anim.bind(on_complete=lambda *x: App.get_running_app().root.remove_widget(toast))
+        anim.start(toast)
+
     def load_config(self):
         # Get the path to our config file
         config_path = os.path.join(os.path.dirname(__file__), 'config.json')
@@ -189,6 +197,7 @@ class PhotoFrameApp(App):
         try:
             sync_photos(self.local_config['local_folder'], self.local_config['album_id'])
         except Exception as e:
+            self.show_toast("Error syncing photos.")
             logging.error("Error syncing photos: %s", e)
 
         current_image = self.images[self.index] if self.images else None
@@ -198,6 +207,7 @@ class PhotoFrameApp(App):
         updated_images = new_images + [img for img in self.images if img in self.image_cache]
 
         if updated_images != self.images:
+            self.show_toast("New images found. Reloading...")
             self.images = updated_images
 
             # If the currently displayed image was deleted, load the next available image
@@ -205,8 +215,11 @@ class PhotoFrameApp(App):
                 if self.images:
                     self.load_next_image(force=True)
                 else:
+                    self.show_toast("No images found in the photos directory.")
                     logging.warning("No images found in the photos directory.")
                     pass
+        else:
+            self.show_toast("No new images found.")
 
     def update_image(self, dt=None):
         """
