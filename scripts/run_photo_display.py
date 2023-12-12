@@ -12,27 +12,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
-
-
-def kivy_config():
-    """
-    Configure Kivy to run in borderless fullscreen mode.
-    """
-    Config.set('graphics', 'fullscreen', 'auto')
-    Config.set('graphics', 'borderless', True)
-    Config.write()
-
-    Window.show_cursor = False
-
-
-def load_config():
-    # Get the path to our config file
-    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
-
-    with open(config_path) as config_file:
-        config = json.load(config_file)
-
-    return config
+from sync_photos import sync_photos
 
 
 class TapImage(Image):
@@ -62,6 +42,8 @@ class PhotoFrameApp(App):
             Root widget of the Kivy app.
         """
 
+        self.local_config = self.load_config()  # Load our local configuration
+        self.apply_settings()  # Configure Kivy with defined settings
         self.index = 0
         photos_path = os.path.join(os.path.dirname(__file__), '../photos')
         self.images = self.load_images(photos_path)
@@ -138,6 +120,25 @@ class PhotoFrameApp(App):
 
         return layout
 
+    def load_config(self):
+        # Get the path to our config file
+        config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+
+        with open(config_path) as config_file:
+            config = json.load(config_file)
+
+        return config
+
+    def apply_settings(self):
+        """
+        Configure Kivy to run in borderless fullscreen mode.
+        """
+        # Config.set('graphics', 'fullscreen', 'auto')
+        Config.set('graphics', 'borderless', True)
+        Config.write()
+
+        # Window.show_cursor = False
+
     def power_off(self, instance):
         """
         Safely shut down the Raspberry Pi.
@@ -152,8 +153,7 @@ class PhotoFrameApp(App):
         Returns:
             str: Weather data formatted as "temperature | weather".
         """
-        config = load_config()
-        api_key, location = config['weather_api_key'], config['weather_location']
+        api_key, location = self.local_config['weather_api_key'], self.local_config['weather_location']
 
         url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
 
@@ -180,6 +180,11 @@ class PhotoFrameApp(App):
         """
         Check for new images in the photos directory and reload the images if new images are found.
         """
+        try:
+            sync_photos(self.local_config['local_folder'], self.local_config['album_id'])
+        except Exception as e:
+            print("Error syncing photos:", e)
+
         new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
         if new_images != self.images:
             self.images = new_images
@@ -227,5 +232,4 @@ class PhotoFrameApp(App):
 
 
 if __name__ == '__main__':
-    kivy_config()
     PhotoFrameApp().run()
