@@ -2,7 +2,6 @@ from datetime import datetime
 import json
 import os
 import requests
-import time
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
@@ -36,30 +35,19 @@ def load_config():
     return config
 
 
-class SwipeImage(Image):
+class TapImage(Image):
 
     def __init__(self, **kwargs):
-        super(SwipeImage, self).__init__(**kwargs)
-        self.last_swipe_time = 0
-        self.swipe_threshold = 0.2 * Window.width
+        super(TapImage, self).__init__(**kwargs)
 
-    def on_touch_move(self, touch):
-        # Debounce mechanism
-        current_time = time.time()
-        if current_time - self.last_swipe_time < 1:  # 1 second debounce
-            return super(SwipeImage, self).on_touch_move(touch)
-
-        if touch.dx < -self.swipe_threshold:  # Swipe Left
-            app = App.get_running_app()
-            app.load_next_image(force=True)
-            self.last_swipe_time = current_time
-
-        elif touch.dx > self.swipe_threshold:  # Swipe Right
+    def on_touch_down(self, touch):
+        if touch.x < self.width / 2:  # Touched on the left side
             app = App.get_running_app()
             app.load_previous_image()
-            self.last_swipe_time = current_time
-
-        return super(SwipeImage, self).on_touch_move(touch)
+        else:  # Touched on the right side
+            app = App.get_running_app()
+            app.load_next_image(force=True)
+        return super(TapImage, self).on_touch_down(touch)
 
 
 class PhotoFrameApp(App):
@@ -81,8 +69,8 @@ class PhotoFrameApp(App):
         if not self.images:
             raise Exception("No images found in the directory.")
 
-        self.image_widget = SwipeImage(source=self.images[self.index], allow_stretch=True,
-                                       keep_ratio=True, opacity=1)
+        self.image_widget = TapImage(source=self.images[self.index], allow_stretch=True,
+                                     keep_ratio=True, opacity=1)
 
         layout = FloatLayout()
 
