@@ -23,6 +23,7 @@ logging.basicConfig(filename='app.log', level=logging.INFO,
 class TapImage(Image):
 
     def __init__(self, **kwargs):
+        self.touch_threshold = 0.2  # 200 milliseconds
         super(TapImage, self).__init__(**kwargs)
 
     def on_touch_down(self, touch):
