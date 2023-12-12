@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import logging
 import os
 import requests
 from kivy.animation import Animation
@@ -13,6 +14,10 @@ from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from sync_photos import sync_photos
+
+# Setup logging
+logging.basicConfig(filename='app.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 class TapImage(Image):
@@ -42,6 +47,7 @@ class PhotoFrameApp(App):
             Root widget of the Kivy app.
         """
 
+        self.image_cache = {}  # Cache of images and their last modified time
         self.local_config = self.load_config()  # Load our local configuration
         self.apply_settings()  # Configure Kivy with defined settings
         self.index = 0
@@ -143,7 +149,7 @@ class PhotoFrameApp(App):
         """
         Safely shut down the Raspberry Pi.
         """
-        print("Shutting down...")
+        logging.info("Shutting down...")
         os.system('sudo shutdown now')
 
     def fetch_weather_data(self) -> str:
@@ -164,7 +170,7 @@ class PhotoFrameApp(App):
             weather = data['weather'][0]['description'].title()
             return f"{temperature}°F | {weather}"
         except Exception as e:
-            print("Error fetching weather data:", e)
+            logging.error("Error fetching weather data: %s", e)
             return "N/A"
 
     def get_current_time(self):
@@ -183,7 +189,7 @@ class PhotoFrameApp(App):
         try:
             sync_photos(self.local_config['local_folder'], self.local_config['album_id'])
         except Exception as e:
-            print("Error syncing photos:", e)
+            logging.error("Error syncing photos:", e)
 
         new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
         if new_images != self.images:
@@ -228,7 +234,18 @@ class PhotoFrameApp(App):
         Returns:
             List: List of images in our photos directory.
         """
-        return [os.path.join(path, f) for f in os.listdir(path) if f.endswith('.jpg') or f.endswith('.png')]
+        new_images = []
+        for file in os.scandir(path):
+            if file.is_file() and (file.name.endswith('.jpg') or file.name.endswith('.png')):
+                full_path = os.path.join(path, file.name)
+                mod_time = os.path.getmtime(full_path)
+
+                # Check if this file is new or has been modified since last load
+                if full_path not in self.image_cache or self.image_cache[full_path] < mod_time:
+                    new_images.append(full_path)
+                    self.image_cache[full_path] = mod_time
+
+        return new_images
 
 
 if __name__ == '__main__':
