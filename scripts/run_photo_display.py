@@ -23,14 +23,22 @@ logging.basicConfig(filename='app.log', level=logging.INFO,
 class TapImage(Image):
 
     def __init__(self, **kwargs):
-        self.touch_threshold = 0.2  # 200 milliseconds
         super(TapImage, self).__init__(**kwargs)
+        self.last_touch_time = 0
+        self.touch_threshold = 0.2  # 200 milliseconds
+        self.edge_threshold = 0.1  # 10% of the width from each edge
 
     def on_touch_down(self, touch):
-        if touch.x < self.width / 2:  # Touched on the left side
+        current_time = datetime.now().timestamp()
+        if current_time - self.last_touch_time < self.touch_threshold:
+            return False  # Debounce rapid touches
+
+        self.last_touch_time = current_time
+
+        if touch.x < self.width * self.edge_threshold:  # Touched on the left edge
             app = App.get_running_app()
             app.load_previous_image()
-        else:  # Touched on the right side
+        elif touch.x > self.width * (1 - self.edge_threshold):  # Touched on the right edge
             app = App.get_running_app()
             app.load_next_image(force=True)
         return super(TapImage, self).on_touch_down(touch)
