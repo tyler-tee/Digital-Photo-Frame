@@ -26,7 +26,7 @@ class TapImage(Image):
         super(TapImage, self).__init__(**kwargs)
         self.last_touch_time = 0
         self.touch_threshold = 0.2  # 200 milliseconds
-        self.edge_threshold = 0.1  # 10% of the width from each edge
+        self.edge_threshold = 0.4  # 40% of the width from each edge
 
     def on_touch_down(self, touch):
         current_time = datetime.now().timestamp()
