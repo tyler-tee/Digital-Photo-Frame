@@ -189,12 +189,24 @@ class PhotoFrameApp(App):
         try:
             sync_photos(self.local_config['local_folder'], self.local_config['album_id'])
         except Exception as e:
-            logging.error("Error syncing photos:", e)
+            logging.error("Error syncing photos: %s", e)
 
+        current_image = self.images[self.index] if self.images else None
         new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
-        if new_images != self.images:
-            self.images = new_images
-            self.load_next_image(force=True)
+
+        # Update self.images to include both new images and those still present
+        updated_images = new_images + [img for img in self.images if img in self.image_cache]
+
+        if updated_images != self.images:
+            self.images = updated_images
+
+            # If the currently displayed image was deleted, load the next available image
+            if not current_image or current_image not in self.images:
+                if self.images:
+                    self.load_next_image(force=True)
+                else:
+                    logging.warning("No images found in the photos directory.")
+                    pass
 
     def update_image(self, dt=None):
         """
@@ -234,16 +246,27 @@ class PhotoFrameApp(App):
         Returns:
             List: List of images in our photos directory.
         """
+        # Start by assuming all cached images have been removed
+        images_still_present = {key: False for key in self.image_cache}
+
         new_images = []
         for file in os.scandir(path):
             if file.is_file() and (file.name.endswith('.jpg') or file.name.endswith('.png')):
                 full_path = os.path.join(path, file.name)
                 mod_time = os.path.getmtime(full_path)
 
-                # Check if this file is new or has been modified since last load
+                # Update the cache for new or modified files
                 if full_path not in self.image_cache or self.image_cache[full_path] < mod_time:
                     new_images.append(full_path)
                     self.image_cache[full_path] = mod_time
+
+                # Mark this image as still present
+                images_still_present[full_path] = True
+
+        # Remove entries for images that are no longer present
+        for path in list(self.image_cache.keys()):
+            if not images_still_present[path]:
+                del self.image_cache[path]
 
         return new_images
 
