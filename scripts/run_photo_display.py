@@ -133,11 +133,11 @@ class PhotoFrameApp(App):
         """
         Configure Kivy to run in borderless fullscreen mode.
         """
-        # Config.set('graphics', 'fullscreen', 'auto')
+        Config.set('graphics', 'fullscreen', 'auto')
         Config.set('graphics', 'borderless', True)
         Config.write()
 
-        # Window.show_cursor = False
+        Window.show_cursor = False
 
     def power_off(self, instance):
         """
