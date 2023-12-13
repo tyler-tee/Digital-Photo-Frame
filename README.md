@@ -19,7 +19,6 @@ Kivy-based application developed to run on a raspberry pi. Designed to display p
    - Create a `config.json` with keys like `api_service_name`, `api_version`, `scopes`, `local_folder`, and `album_id`.
    - Save your Google API credentials in `client_secret.json`.
      - [Get started w/ the Google API](https://developers.google.com/photos/library/guides/get-started)
-     - 
 
 ## Running the Application
 1. **Initial Photo Population**:
