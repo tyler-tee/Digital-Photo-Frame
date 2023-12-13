@@ -29,6 +29,15 @@ class TapImage(Image):
         self.edge_threshold = 0.4  # 40% of the width from each edge
 
     def on_touch_down(self, touch):
+        """
+        Handle touch events on the left and right areas of the screen.
+
+        Args:
+            touch (TouchEvent): The touch event object.
+
+        Returns:
+            bool: True if the touch event is handled, False otherwise.
+        """
         current_time = datetime.now().timestamp()
         if current_time - self.last_touch_time < self.touch_threshold:
             return False  # Debounce rapid touches
@@ -41,6 +50,7 @@ class TapImage(Image):
         elif touch.x > self.width * (1 - self.edge_threshold):  # Touched on the right edge
             app = App.get_running_app()
             app.load_next_image(force=True)
+
         return super(TapImage, self).on_touch_down(touch)
 
 
