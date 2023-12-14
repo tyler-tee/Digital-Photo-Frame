@@ -87,6 +87,11 @@ def sync_photos(local_folder: str, album_id: str):
     # List photos in the Google Photos album
     photos = list_photos(service, album_id)
 
+    # Check if no photos are returned from Google Photos
+    if not photos:
+        print("No photos returned from Google Photos. Local folder remains unchanged.")
+        return  # Skip updating the local folder if no photos are found
+
     photos_path = os.path.join(os.path.dirname(__file__), local_folder)
     # Download new photos
     for filename, url in photos.items():
