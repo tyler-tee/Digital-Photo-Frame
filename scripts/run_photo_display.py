@@ -102,7 +102,7 @@ class PhotoFrameApp(App):
         # Build our clock widget
         self.clock_label = Label(
             text=self.get_current_time(),
-            font_size='60sp',
+            font_size='45sp',
             color=[1, 1, 1, 1],  # White color
             size_hint=(None, None),
             pos_hint={'x': 0.06, 'y': 0.01},
@@ -201,7 +201,9 @@ class PhotoFrameApp(App):
             return "N/A"
 
     def get_current_time(self):
-        return datetime.now().strftime('%H:%M')
+        current_time = datetime.now()
+        formatted_time = current_time.strftime('%I:%M %p')
+        return formatted_time.lstrip('0')
 
     def update_clock(self, dt):
         self.clock_label.text = self.get_current_time()
