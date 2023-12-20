@@ -90,7 +90,7 @@ class PhotoFrameApp(App):
         # Build our weather widget
         self.weather_label = Label(
             text=self.fetch_weather_data(),
-            font_size='18sp',
+            font_size='17sp',
             color=[1, 1, 1, 1],  # White color
             size_hint=(None, None),
             pos_hint={'x': 0.06, 'y': 0.08},  # Adjust 'top' value as needed
