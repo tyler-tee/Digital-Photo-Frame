@@ -72,6 +72,7 @@ class PhotoFrameApp(App):
         self.index = 0
         photos_path = os.path.join(os.path.dirname(__file__), '../photos')
         self.images = self.load_images(photos_path)
+        self.toast = None
 
         if not self.images:
             raise Exception("No images found in the directory.")
@@ -146,12 +147,17 @@ class PhotoFrameApp(App):
         return layout
 
     def show_toast(self, message):
-        toast = Label(text=message, size_hint=(None, None), font_size='20sp',
-                      bold=True, pos_hint={'center_x': 0.5, 'center_y': 0.1})
-        App.get_running_app().root.add_widget(toast)
-        anim = Animation(opacity=0.5, duration=5)
-        anim.bind(on_complete=lambda *x: App.get_running_app().root.remove_widget(toast))
-        anim.start(toast)
+        if not self.toast:
+            self.toast = Label(size_hint=(None, None), font_size='20sp',
+                               bold=True, pos_hint={'center_x': 0.5, 'center_y': 0.1})
+            App.get_running_app().root.add_widget(self.toast)
+
+        self.toast.text = message
+        self.toast.opacity = 1  # Make sure it's visible
+
+        anim = Animation(opacity=0, duration=5)
+        anim.bind(on_complete=lambda *x: setattr(self.toast, 'opacity', 0))
+        anim.start(self.toast)
 
     def load_config(self):
         # Get the path to our config file
