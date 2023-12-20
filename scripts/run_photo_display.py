@@ -176,7 +176,7 @@ class PhotoFrameApp(App):
         Config.set('graphics', 'borderless', True)
         Config.write()
 
-        Window.show_cursor = False
+        Window.show_cursor = True
 
     def power_off(self, instance):
         """
@@ -222,28 +222,28 @@ class PhotoFrameApp(App):
         Check for new images in the photos directory and reload the images if new images are found.
         """
         try:
-            sync_photos(self.local_config['local_folder'], self.local_config['album_id'])
+            sync_photos()
         except Exception as e:
             self.show_toast("Error syncing photos.")
             logging.error("Error syncing photos: %s", e)
+            return
 
-        current_image = self.images[self.index] if self.images else None
         new_images = self.load_images(os.path.join(os.path.dirname(__file__), '../photos'))
 
-        # Update self.images to include both new images and those still present
-        updated_images = new_images + [img for img in self.images if img in self.image_cache]
+        if new_images != self.images:
+            self.show_toast("Images updated. Reloading...")
+            self.images = new_images
 
-        if updated_images != self.images:
-            self.show_toast("New images found. Reloading...")
-            self.images = updated_images
+            if not self.images:
+                logging.warning("No images found in the photos directory.")
+                return
 
-            # If the currently displayed image was deleted, load the next available image
-            if not current_image or current_image not in self.images:
-                if self.images:
-                    self.load_next_image(force=True)
-                else:
-                    logging.warning("No images found in the photos directory.")
-                    pass
+            # If the currently displayed image was deleted, load the first image from the new list
+            if self.image_widget.source not in self.images:
+                self.index = 0
+                self.image_widget.source = self.images[self.index]
+
+            self.load_next_image(force=True)  # Force refresh the displayed image
         else:
             self.show_toast("No new images found.")
 
@@ -285,10 +285,7 @@ class PhotoFrameApp(App):
         Returns:
             List: List of images in our photos directory.
         """
-        # Start by assuming all cached images have been removed
-        images_still_present = {key: False for key in self.image_cache}
-
-        new_images = []
+        images = []
         for file in os.scandir(path):
             if file.is_file() and (file.name.endswith('.jpg') or file.name.endswith('.png')):
                 full_path = os.path.join(path, file.name)
@@ -296,18 +293,16 @@ class PhotoFrameApp(App):
 
                 # Update the cache for new or modified files
                 if full_path not in self.image_cache or self.image_cache[full_path] < mod_time:
-                    new_images.append(full_path)
                     self.image_cache[full_path] = mod_time
 
-                # Mark this image as still present
-                images_still_present[full_path] = True
+                images.append(full_path)
 
         # Remove entries for images that are no longer present
-        for path in list(self.image_cache.keys()):
-            if not images_still_present[path]:
-                del self.image_cache[path]
+        for cached_path in list(self.image_cache.keys()):
+            if cached_path not in images:
+                del self.image_cache[cached_path]
 
-        return new_images
+        return images
 
 
 if __name__ == '__main__':
