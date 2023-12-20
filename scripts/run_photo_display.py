@@ -176,7 +176,7 @@ class PhotoFrameApp(App):
         Config.set('graphics', 'borderless', True)
         Config.write()
 
-        Window.show_cursor = True
+        Window.show_cursor = False
 
     def power_off(self, instance):
         """
