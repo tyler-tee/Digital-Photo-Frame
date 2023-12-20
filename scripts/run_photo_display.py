@@ -90,7 +90,7 @@ class PhotoFrameApp(App):
         # Build our weather widget
         self.weather_label = Label(
             text=self.fetch_weather_data(),
-            font_size='15sp',
+            font_size='18sp',
             color=[1, 1, 1, 1],  # White color
             size_hint=(None, None),
             pos_hint={'x': 0.06, 'y': 0.08},  # Adjust 'top' value as needed
@@ -203,7 +203,7 @@ class PhotoFrameApp(App):
     def get_current_time(self):
         current_time = datetime.now()
         formatted_time = current_time.strftime('%I:%M %p')
-        return formatted_time.lstrip('0')
+        return formatted_time
 
     def update_clock(self, dt):
         self.clock_label.text = self.get_current_time()
