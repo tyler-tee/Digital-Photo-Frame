@@ -236,7 +236,6 @@ class PhotoFrameApp(App):
                 if self.images:
                     self.load_next_image(force=True)
                 else:
-                    self.show_toast("No images found in the photos directory.")
                     logging.warning("No images found in the photos directory.")
                     pass
         else:
