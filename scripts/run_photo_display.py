@@ -109,7 +109,7 @@ class PhotoFrameApp(App):
             halign='left'
         )
         layout.add_widget(self.clock_label)
-        Clock.schedule_interval(self.update_clock, 60)  # Update clock every minute
+        Clock.schedule_interval(self.update_clock, 10)  # Update clock every 10 seconds
 
         # Build our refresh widget
         button_path = os.path.join(os.path.dirname(__file__), 'assets')
