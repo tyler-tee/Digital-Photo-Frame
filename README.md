@@ -1,7 +1,7 @@
 # Digital Photo Frame
 
 ## Overview
-Kivy-based application developed to run on a raspberry pi. Designed to display photos synced from a Google Photos album on a touchscreen display. Created for Christmas 2023 as a gift for my fiance and father.
+Kivy-based application developed to run on a raspberry pi. Designed to display photos synced from a Google Photos album on a touchscreen display. Created for Christmas 2023 as a gift for my ~~fiance~~ wife and father.
 
 ## Key Features
 - **Photo Synchronization**: Integrates with Google Photos API to sync photos.
