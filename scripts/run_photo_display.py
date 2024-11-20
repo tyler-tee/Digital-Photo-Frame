@@ -75,7 +75,8 @@ class PhotoFrameApp(App):
         self.toast = None
 
         if not self.images:
-            raise Exception("No images found in the directory.")
+            logging.warning("No images found in the directory.")
+            return FloatLayout()  # Return an empty layout to avoid crashing
 
         self.image_widget = TapImage(source=self.images[self.index], allow_stretch=True,
                                      keep_ratio=True, opacity=1)
