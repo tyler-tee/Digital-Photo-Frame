@@ -1,5 +1,8 @@
 # Digital Photo Frame
 
+![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=tyler-tee_Digital-Photo-Frame&metric=alert_status)
+
+
 ## Overview
 Kivy-based application developed to run on a raspberry pi. Designed to display photos synced from a Google Photos album on a touchscreen display. Created for Christmas 2023 as a gift for my ~~fiance~~ wife and father.
 
